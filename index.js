@@ -131,7 +131,7 @@ async function procMess(message) {
       "base64"
     )}`;
     message.type === "image" &&
-      (await cl.sendImageAsSticker(message.chatId, dataUrl, message.id));
+      (await cl.sendImageAsSticker(message.chatId, dataUrl));
     message.type === "video" &&
       (await cl.sendMp4AsSticker(message.chatId, dataUrl));
   }
