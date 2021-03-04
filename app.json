@@ -1,0 +1,10 @@
+{
+  "name": "wtsap",
+  "description": "wtsapbot",
+  "repository": "https://github.com/GajAhmadaaa/wtsap",
+  "keywords": [],
+  "builpacks": [
+    { "url": "heroku/nodejs" },
+    { "url": "https://github.com/jontewks/puppeteer-heroku-buildpack.git" }
+  ]
+}
