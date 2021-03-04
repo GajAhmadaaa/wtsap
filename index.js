@@ -1,6 +1,5 @@
 const wa = require("@open-wa/wa-automate");
 const { create, decryptMedia, ev } = wa;
-const { author: bots } = StickerMetadata;
 const { default: PQueue } = require("p-queue");
 const fs = require("fs");
 const express = require("express");
@@ -138,7 +137,7 @@ async function procMess(message) {
       "base64"
     )}`;
     message.type === "image" &&
-      (await cl.sendImageAsSticker(message.chatId, dataUrl, StickerMetadata, message.id));
+      (await cl.sendImageAsSticker(message.chatId, dataUrl, message.id));
     message.type === "video" &&
       (await cl.sendMp4AsSticker(message.chatId, dataUrl));
   }
