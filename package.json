@@ -1,0 +1,13 @@
+{
+  "name": "wtsap",
+  "version": "1.0.0",
+  "description": "wtsapbot",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "nopladi",
+  "license": "MIT",
+  "dependencies": {
+    "@open-wa/wa-automate": "^3.7.0"
+  }
+}
