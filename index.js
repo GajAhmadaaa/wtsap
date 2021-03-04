@@ -32,12 +32,6 @@ const leaveText =
   process.env.LEAVE_TEXT ||
   "Ab unko humshe rishta nhi rakhna hai\nto humari taraf se bhi koi zabardasti nhi hai";
 
-const server = express();
-const PORT = parseInt(process.env.PORT) || 3000;
-const queue = new PQueue({
-  concurrency: 2,
-  autoStart: false,
-});
 /**
  * WA Client
  * @type {null | import("@open-wa/wa-automate").Client}
@@ -143,6 +137,12 @@ async function procMess(message) {
   }
 }
 
+const server = express();
+const PORT = parseInt(process.env.PORT) || 3000;
+const queue = new PQueue({
+  concurrency: 2,
+  autoStart: false,
+});
 /**
  * Add message to process queue
  */
