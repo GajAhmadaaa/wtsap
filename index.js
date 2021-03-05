@@ -135,7 +135,7 @@ async function procMess(message) {
       (await cl.sendImageAsSticker(message.chatId, dataUrl));
     message.type === "video" &&
       (await cl.sendMp4AsSticker(message.chatId, dataUrl));
-  } else (
+  } {
     
     await cl.onMessage((message) => {
       Handler.messageHandler(Client, message);
