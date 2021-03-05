@@ -43,6 +43,21 @@ let cl = null;
  * @param {import("@open-wa/wa-automate").Message} message
  */
 async function procMess(message) {
+    try {
+    const Handler = require("./handler");
+
+    await cl.onMessage((message) => {
+      Handler.messageHandler(Client, message);
+    });
+
+    await cl.onGlobalParicipantsChanged((event) => {
+      Handler.globalParticipantsChanged(Client, event);
+    });
+
+    await cl.onAddedToGroup((event) => {
+      Handler.addedToGroup(Client, event);
+    });
+
   if (message.type === "chat") {
     if (
       message.isGroupMsg &&
