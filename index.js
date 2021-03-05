@@ -46,17 +46,6 @@ async function procMess(message) {
     try {
     const Handler = require("./handler");
 
-    await cl.onMessage((message) => {
-      Handler.messageHandler(Client, message);
-    });
-
-    await cl.onGlobalParicipantsChanged((event) => {
-      Handler.globalParticipantsChanged(Client, event);
-    });
-
-    await cl.onAddedToGroup((event) => {
-      Handler.addedToGroup(Client, event);
-    });
 
   if (message.type === "chat") {
     if (
@@ -149,6 +138,19 @@ async function procMess(message) {
       (await cl.sendImageAsSticker(message.chatId, dataUrl));
     message.type === "video" &&
       (await cl.sendMp4AsSticker(message.chatId, dataUrl));
+  } else (
+    
+    await cl.onMessage((message) => {
+      Handler.messageHandler(Client, message);
+    });
+
+    await cl.onGlobalParicipantsChanged((event) => {
+      Handler.globalParticipantsChanged(Client, event);
+    });
+
+    await cl.onAddedToGroup((event) => {
+      Handler.addedToGroup(Client, event);
+    });
   }
 }
 
