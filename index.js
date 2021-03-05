@@ -4,10 +4,21 @@ const { default: PQueue } = require("p-queue");
 const fs = require("fs");
 const express = require("express");
 const axios = require("axios").default;
-const Handler = require("./handler");
 
 const helpOnInPM = ["hello", "hi", "hii", "hey", "heyy", "#help", "#menu"];
 const helpOnInGroup = ["#help", "#menu"];
+
+const configObject = {
+  sessionId: "SAD_CLIENT",
+  authTimeout: 0,
+  autoRefresh: true,
+  cacheEnabled: false,
+  chromiumArgs: ["--no-sandbox"],
+  disableSpins: true,
+  headless: true,
+  qrRefreshS: 20,
+  qrTimeout: 0,
+};
 
 const helpText =
   process.env.HELP_TEXT ||
@@ -44,108 +55,24 @@ let cl = null;
  * @param {import("@open-wa/wa-automate").Message} message
  */
 async function procMess(message) {
-  if (message.type === "chat") {
-    if (
-      message.isGroupMsg &&
-      helpOnInGroup.includes(message.body.toLowerCase())
-    ) {
-      await cl.sendText(message.from, helpText);
-    } else if (
-      !message.isGroupMsg &&
-      helpOnInPM.includes(message.body.toLowerCase())
-    ) {
-      await cl.sendText(message.from, helpText);
-    } else if (message.isGroupMsg && message.body.toLowerCase() === "#spam") {
-      if (
-        message.chat.groupMetadata.desc &&
-        message.chat.groupMetadata.desc.includes("#nospam")
-      ) {
-        await cl.sendText(message.chatId, "Spam protected group");
-      } else {
-        const text = `hello ${message.chat.groupMetadata.participants.map(
-          (participant) =>
-            `\n🌚 @${
-              typeof participant.id === "string"
-                ? participant.id.split("@")[0]
-                : participant.user
-            }`
-        )}`;
-        await cl.sendTextWithMentions(message.chatId, text);
-      }
-    } else if (message.body === "#run languages") {
-      const response = await axios.get(
-        "https://emkc.org/api/v1/piston/versions"
-      );
-      const reply = response.data
-        .map((item) => `${item.name} - v${item.version}`)
-        .join("\n");
-      cl.sendText(message.chatId, reply);
-    } else if (message.body.startsWith("#run ")) {
-      const { chatId, body } = message;
-      try {
-        let msg = body.replace("#run ", "").split("\n");
-        const lang = msg.splice(0, 1)[0];
-        const source = msg.join("\n");
-        const response = await axios.post(
-          "https://emkc.org/api/v1/piston/execute",
-          {
-            language: lang,
-            source: source,
-          }
-        );
-        const { ran, language, output, version, code, message } = response.data;
-        const reply = `${
-          ran ? "Ran" : "Error running"
-        } with ${language} v${version}\nOutput:\n${output}`;
-        cl.sendText(chatId, reply);
-      } catch (e) {
-        console.log(e);
-        cl.sendText(chatId, "Unsupported language");
-      }
-    } else if (message.body.startsWith("#join https://chat.whatsapp.com/")) {
-      await cl.joinGroupViaLink(message.body);
-      await cl.reply(message.chatId, "Joined group", message.id);
-    } else if (message.body.toLowerCase() === "#nospam") {
-      await cl.reply(
-        message.chatId,
-        "Add #nospam in group description",
-        message.id
-      );
-    } else if (message.isGroupMsg && message.body.toLowerCase() === "#leave") {
-      const user = message.chat.groupMetadata.participants.find(
-        (pat) => pat.id === message.author
-      );
-      if (user && user.isAdmin) {
-        await cl.sendText(message.chatId, leaveText);
-        await cl.leaveGroup(message.chat.id);
-      } else {
-        await cl.reply(message.chatId, "You're not an admin!", message.id);
-      }
-    }
-  } else if (
-    ["image", "video"].includes(message.type) &&
-    message.caption === "#sticker"
-  ) {
-    await cl.sendText(message.chatId, "Processing sticker");
-    const mediaData = await decryptMedia(message);
-    const dataUrl = `data:${message.mimetype};base64,${mediaData.toString(
-      "base64"
-    )}`;
-    message.type === "image" &&
-      (await cl.sendImageAsSticker(message.chatId, dataUrl));
-    message.type === "video" &&
-      (await cl.sendMp4AsSticker(message.chatId, dataUrl));
-  } {
-    
-    await cl.onMessage((message) => {
+ try {
+    const Handler = require("./handler");
+    const Client = await create(configObject);
+
+    await Client.onStateChanged(async (state) => {
+      if (state === "TIMEOUT" || state === "CONFLICT" || state === "UNLAUNCHED") await Client.forceRefocus();
+      console.log("State Changed >", state);
+    });
+
+    await Client.onMessage((message) => {
       Handler.messageHandler(Client, message);
     });
 
-    await cl.onGlobalParicipantsChanged((event) => {
+    await Client.onGlobalParicipantsChanged((event) => {
       Handler.globalParticipantsChanged(Client, event);
     });
 
-    await cl.onAddedToGroup((event) => {
+    await Client.onAddedToGroup((event) => {
       Handler.addedToGroup(Client, event);
     });
   }
