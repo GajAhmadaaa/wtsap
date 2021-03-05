@@ -4,6 +4,7 @@ const { default: PQueue } = require("p-queue");
 const fs = require("fs");
 const express = require("express");
 const axios = require("axios").default;
+const Handler = require("./handler");
 
 const helpOnInPM = ["hello", "hi", "hii", "hey", "heyy", "#help", "#menu"];
 const helpOnInGroup = ["#help", "#menu"];
@@ -43,10 +44,6 @@ let cl = null;
  * @param {import("@open-wa/wa-automate").Message} message
  */
 async function procMess(message) {
-    try {
-    const Handler = require("./handler");
-
-
   if (message.type === "chat") {
     if (
       message.isGroupMsg &&
